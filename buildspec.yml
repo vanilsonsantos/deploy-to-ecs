@@ -1,0 +1,15 @@
+version: 0.1
+
+env:
+  variables:
+    build_version: "0.1"
+
+phases:
+  install:
+    commands:
+  pre_build:
+    commands:
+      - echo "pre_build"
+  build:
+    commands:
+      - echo "build"
