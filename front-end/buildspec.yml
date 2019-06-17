@@ -9,7 +9,7 @@ phases:
     commands:
   pre_build:
     commands:
-      - echo "pre_build"
+      - echo "pre_build FRONTEND"
   build:
     commands:
-      - echo "build"
+      - echo "build FRONTEND" 
