@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" tests="6" assertions="7" failures="0" errors="0" time="3.830627">
+    <testcase name="testQuoteWithoutUnits" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="15" assertions="2" time="2.452367"/>
+    <testcase name="testQuoteSpeedy" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="25" assertions="1" time="0.480187"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageIsSpanishAndTargetLanguageIsEnglish" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="48" assertions="1" time="0.199197"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageIsEnglishAndTargetLanguageIsSpanish" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="73" assertions="1" time="0.199271"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageIsEnglishAndTargetLanguageIsAnotherLanguage" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="98" assertions="1" time="0.228187"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageAndTargetLanguageIsNotEnglish" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="123" assertions="1" time="0.271418"/>
+  </testsuite>
+</testsuites>
