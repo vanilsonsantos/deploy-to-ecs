@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" tests="6" assertions="7" failures="1" errors="0" time="3.687623">
+    <testcase name="testQuoteWithoutUnits" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="15" assertions="2" time="2.332441"/>
+    <testcase name="testQuoteSpeedy" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="25" assertions="1" time="0.452684"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageIsSpanishAndTargetLanguageIsEnglish" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="48" assertions="1" time="0.204710"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageIsEnglishAndTargetLanguageIsSpanish" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="73" assertions="1" time="0.185576"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageIsEnglishAndTargetLanguageIsAnotherLanguage" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="98" assertions="1" time="0.189600"/>
+    <testcase name="testQuoteSpeedyWhenSourceLanguageAndTargetLanguageIsNotEnglish" class="QuoteTranslationBunnyControllerTestCase" file="/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php" line="123" assertions="1" time="0.322612">
+      <failure type="PHPUnit_Framework_ExpectationFailedException">QuoteTranslationBunnyControllerTestCase::testQuoteSpeedyWhenSourceLanguageAndTargetLanguageIsNotEnglish
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+     'Quote' =&gt; Array (
+         'price' =&gt; 40.0
+         'currency' =&gt; 'USD'
+         'list_price' =&gt; 40.0
+-        'listPrice' =&gt; 60.0
++        'listPrice' =&gt; 40.0
+         'symbol' =&gt; '$'
+         'units' =&gt; 100
+         'type' =&gt; 'words'
+         'base_price_in_usd' =&gt; 40.0
+         'fulfillment' =&gt; 'speedy'
+         'total_add_ons_addition' =&gt; 0.0
+         'credit_line_service_fee' =&gt; 0
+         'net_terms_fee' =&gt; 0
+     )
+ )
+
+/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php:150
+/var/www/server/Test/Case/Controller/QuoteTranslationBunnyControllerTest.php:145
+/var/www/core/Cake/TestSuite/CakeTestCase.php:82
+/var/www/core/Cake/TestSuite/CakeTestRunner.php:60
+/var/www/core/Cake/TestSuite/CakeTestSuiteCommand.php:96
+/var/www/core/Cake/Console/Command/TestShell.php:274
+/var/www/core/Cake/Console/Command/TestShell.php:259
+/var/www/core/Cake/Console/Shell.php:440
+/var/www/core/Cake/Console/ShellDispatcher.php:207
+/var/www/core/Cake/Console/ShellDispatcher.php:66
+</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

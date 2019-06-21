@@ -1,4 +1,6 @@
 version: '3'
+
+
 services:
   back-end:
     image: "aws-ecs-backend"
@@ -15,8 +17,9 @@ services:
     links:
       - influxdb
   # 0af813614af245ebbba0f07e834a53ac
+  # http://3f236b7d.ngrok.io/
   influxdb:
-    image: "influxdb:1.0"
+    image: "influxdb"
     ports:
       - "8083:8083"
       - "8086:8086"
