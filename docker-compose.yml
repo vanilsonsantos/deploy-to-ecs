@@ -1,0 +1,31 @@
+version: '3'
+services:
+  back-end:
+    image: "aws-ecs-backend"
+    ports:
+      - "5000:5000" 
+  front-end:
+    image: "aws-ecs-frontend"
+    ports:
+      - "5050:5050" 
+  jenkins:
+    image: "jenkins/jenkins:lts"
+    ports:
+      - "8080:8080"
+    links:
+      - influxdb
+  # 0af813614af245ebbba0f07e834a53ac
+  influxdb:
+    image: "influxdb:1.0"
+    ports:
+      - "8083:8083"
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=jenkins
+  grafana:
+    image: "grafana/grafana:3.1.1"
+    ports:
+      - "3000:3000"
+    links:
+      - influxdb
+    
