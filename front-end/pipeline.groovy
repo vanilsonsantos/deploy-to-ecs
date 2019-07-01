@@ -12,7 +12,9 @@ class Pipeline {
     def Pipeline() {}
 
     def runTests() {
-        echo "Rodando os tests"
+        node {
+             echo "Rodando os tests front-end"
+        }
     }
 
 }
