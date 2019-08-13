@@ -1,17 +1,32 @@
 node {  
     
-    def projects = ["back-end", "front-end"]
-    def jobs = [:]
-
-    projects.each{
-        project -> jobs["${project} flow triggered"] = {
-            build job: 'pipeline-flow', 
-            parameters: [string(name: 'projectName', value: "${project}")],
-            quietPeriod: 2
-        }
+    stage('Checkout') {
+        checkout scm
     }
-    parallel jobs
-
     
-    echo "Terminou"
+    def projectsHaveChange = []
+    def jobs = [:]
+    def publisher = LastChanges.getLastChangesPublisher "PREVIOUS_REVISION", "SIDE", "LINE", true, true, "", "", "", "", ""
+        publisher.publishLastChanges()
+        def changes = publisher.getLastChanges()
+        for (commit in changes.getCommits()) {
+            projectsHaveChange = commit.getChanges().split(' ')
+                .findAll { line -> 
+                    file = line.startsWith('a/') 
+                    file
+                }
+                .collect { file -> 
+                    projectFolder = file.split('/')[1] 
+                    projectFolder
+                }
+                .unique(false)
+                .findAll { projectFolder -> 
+                    def stepsPipelineFilePath = "${pwd()}/${projectFolder}/steps.pipeline"
+                    fileExists(stepsPipelineFilePath) 
+                }
+        }
+        
+    println projectsHaveChange
+    
+    echo "Finished"
 }
