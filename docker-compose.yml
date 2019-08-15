@@ -15,7 +15,7 @@ services:
       - "5050:5050" 
     volumes:
       - ./front-end:/data
-    command: npm start /data 
+    command: npm start /data
   jenkins:
     image: "registry2.bunnyinc.com/build/jenkins:2.189"
     ports:
