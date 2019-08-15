@@ -1,0 +1,14 @@
+version: '3.6'
+
+services:
+  back-end:
+    privileged: true
+    command: >
+      sh -c "cd src && mocha"
+  front-end:
+    privileged: true
+    command: >
+      sh -c "cd src && mocha"
+  
+  
+    

@@ -1,23 +1,29 @@
-version: '3'
+version: '3.6'
 
 
 services:
   back-end:
-    image: "aws-ecs-backend"
+    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
     ports:
       - "5000:5000" 
+    volumes:
+      - ./back-end:/data
+    command: npm start /data 
   front-end:
-    image: "aws-ecs-frontend"
+    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
     ports:
       - "5050:5050" 
+    volumes:
+      - ./front-end:/data
+    command: npm start /data 
   jenkins:
-    image: "jenkins/jenkins:lts"
+    image: "registry2.bunnyinc.com/build/jenkins:2.189"
     ports:
       - "8080:8080"
     links:
       - influxdb
-  # 0af813614af245ebbba0f07e834a53ac
-  # http://3f236b7d.ngrok.io/
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   influxdb:
     image: "influxdb"
     ports:
