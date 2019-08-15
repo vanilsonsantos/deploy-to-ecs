@@ -2,13 +2,22 @@ version: '3.6'
 
 services:
   back-end:
-    privileged: true
+    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
+    ports:
+      - "5000:5000" 
+    volumes:
+      - "back-end:/data"
     command: >
-      sh -c "cd src && mocha"
+      sh -c "npm install && npm start /data && cd src && mocha" 
   front-end:
-    privileged: true
+    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
+    ports:
+      - "5050:5050" 
+    volumes:
+      - "front-end:/data"
+    command: npm start /data 
     command: >
-      sh -c "cd src && mocha"
-  
-  
+      sh -c "npm install && npm start /data && cd src && mocha"
+ 
+ 
     
