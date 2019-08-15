@@ -2,6 +2,7 @@ version: '3.6'
 
 volumes:
   back-end:
+    driver: local
   front-end:
     driver: local
 
@@ -13,7 +14,7 @@ services:
     volumes:
       - "back-end:/data"
     command: >
-      sh -c "npm install && npm start /data && cd src && mocha" 
+      sh -c "npm install && cd src && mocha" 
   front-end:
     image: registry2.bunnyinc.com/build/node:10.16.0-alpine
     ports:
@@ -22,7 +23,7 @@ services:
       - "front-end:/data"
     command: npm start /data 
     command: >
-      sh -c "npm install && npm start /data && cd src && mocha"
+      sh -c "npm install && cd src && mocha"
  
  
     
