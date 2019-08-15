@@ -1,5 +1,10 @@
 version: '3.6'
 
+volumes:
+  back-end:
+  front-end:
+    driver: local
+
 services:
   back-end:
     image: registry2.bunnyinc.com/build/node:10.16.0-alpine
