@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.001" tests="1" failures="0">
+  <testsuite name="Root Suite" timestamp="2019-08-16T19:08:33" tests="0" failures="0" time="0">
+  </testsuite>
+  <testsuite name="Running tests with Mocha &amp; Chai:" timestamp="2019-08-16T19:08:33" tests="1" file="/Users/vanilsonsantos/Documents/Study/aws/projects/deploy-to-ecs/back-end/test/demo.b.js" failures="0" time="0.001">
+    <testcase name="Running tests with Mocha &amp; Chai: First test" time="0.001" classname="First test">
+    </testcase>
+  </testsuite>
+</testsuites>
