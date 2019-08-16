@@ -2,17 +2,21 @@ version: '3.6'
 
 services:
   back-end:
-    image: inside_back
+    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
     ports:
       - "5000:5000" 
+    volumes:
+      - ./back-end:/data
     command: >
-      sh -c "npm install && cd src && mocha" 
+      sh -c "npm install && cd src && mocha --reporter mocha-junit-reporter" 
   front-end:
-    image: inside_front
+    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
     ports:
       - "5050:5050" 
+    volumes:
+      - ./front-end:/data
     command: >
-      sh -c "npm install && cd src && mocha"
+      sh -c "npm install && cd src && mocha --reporter mocha-junit-reporter"
  
  
     

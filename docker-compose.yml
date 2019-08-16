@@ -24,6 +24,7 @@ services:
       - influxdb
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /var/jenkins_home:/var/jenkins_home
   influxdb:
     image: "influxdb"
     ports:
