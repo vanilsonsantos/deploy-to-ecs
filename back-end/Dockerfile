@@ -1,6 +1,7 @@
-FROM registry2.bunnyinc.com/build/node:10.16.0-alpine
+FROM 679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_node:latest
 MAINTAINER Vanilson Santos
 COPY . /data
 WORKDIR /data
 RUN npm install
 
+ENTRYPOINT npm start /data

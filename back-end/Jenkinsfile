@@ -1,0 +1,14 @@
+node {  
+    
+    def pipelineFlowWorkspace = "${JENKINS_HOME}/jobs/bunnystudio-pipeline-flow/workspace"
+    
+    ws("$pipelineFlowWorkspace") {
+        
+        stage('Unit tests') {
+            sh "docker-compose -f ${WORKSPACE}/docker-compose.pipeline.tests.yml run --no-deps front-end"
+        }
+    
+        echo "Finished"
+    }
+   
+}

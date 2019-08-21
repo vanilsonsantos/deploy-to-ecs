@@ -3,14 +3,14 @@ version: '3.6'
 
 services:
   back-end:
-    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
+    image: 679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_back_end:latest
     ports:
       - "5000:5000" 
     volumes:
       - ./back-end:/data
     command: npm start /data 
   front-end:
-    image: registry2.bunnyinc.com/build/node:10.16.0-alpine
+    image: 679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_front_end:latest
     ports:
       - "5050:5050" 
     volumes:
@@ -20,8 +20,6 @@ services:
     image: "registry2.bunnyinc.com/build/jenkins:2.189"
     ports:
       - "8080:8080"
-    links:
-      - influxdb
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/jenkins_home:/var/jenkins_home
