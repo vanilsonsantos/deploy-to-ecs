@@ -6,10 +6,10 @@ router.get('/', function(req, res, next) {
   res.send({
     'users': [
       {
-        'name': 'Developer'
+        'name': 'Developer number 4'
       },
       {
-        'name': 'Client'
+        'name': 'Client number 4'
       }
     ]
   });
