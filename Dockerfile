@@ -13,7 +13,10 @@ RUN apt-get update \
         apt-transport-https \
         ca-certificates \
         curl \
-        software-properties-common
+        python \
+        python-pip \
+        software-properties-common \
+        && pip install awscli
 
 # # docker repos
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
