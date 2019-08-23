@@ -17,7 +17,7 @@
             "containerPort": 5000
           }
         ],
-        "image": "679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_back_end:IMAGE_TAG",
+        "image": "679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_back_end:%IMAGE_TAG%",
         "essential": true,
         "name": "ecs-back-jenkins-test-container"
       }
