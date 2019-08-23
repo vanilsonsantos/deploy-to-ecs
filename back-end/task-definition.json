@@ -15,6 +15,11 @@
             "hostPort": 5000,
             "protocol": "tcp",
             "containerPort": 5000
+          },
+          {
+            "hostPort": 80,
+            "protocol": "tcp",
+            "containerPort": 80
           }
         ],
         "image": "679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_back_end:%IMAGE_TAG%",
