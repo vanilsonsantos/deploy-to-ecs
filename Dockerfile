@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:2.176.2
 
 # install docker, docker-compose, docker-machine
 # see: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/
@@ -16,6 +16,7 @@ RUN apt-get update \
         python \
         python-pip \
         software-properties-common \
+        jq \
         && pip install awscli
 
 # # docker repos
@@ -31,6 +32,9 @@ RUN apt-get -y install docker-ce
 # # docker-compose
 RUN curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose \
     && chmod +x /usr/local/bin/docker-compose
+
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
 # # give jenkins docker rights
 # RUN usermod -aG docker jenkins

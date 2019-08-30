@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   back-end:
-    image: 679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_node:latest
+    image: 697826815912.dkr.ecr.us-east-1.amazonaws.com/ecr_bunnystudio_study_node:latest
     ports:
       - "5000:5000" 
     volumes:
@@ -10,7 +10,7 @@ services:
     command: >
       sh -c "npm install && npm test" 
   front-end:
-    image: 679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_node:latest
+    image: 697826815912.dkr.ecr.us-east-1.amazonaws.com/ecr_bunnystudio_study_node:latest
     ports:
       - "5050:5050" 
     volumes:
