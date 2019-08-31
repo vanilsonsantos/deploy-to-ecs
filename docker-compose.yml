@@ -1,5 +1,4 @@
-version: '3.1'
-
+version: '2'
 
 services:
   back-end:
@@ -16,13 +15,13 @@ services:
     volumes:
       - ./front-end:/data
     command: npm start /data
-  jenkins:
-    image: "registry2.bunnyinc.com/build/jenkins:2.189"
-    ports:
-      - "8080:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/jenkins_home:/var/jenkins_home
+  # jenkins:
+  #   image: "registry2.bunnyinc.com/build/jenkins:2.189"
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /var/jenkins_home:/var/jenkins_home
   influxdb:
     image: "influxdb"
     ports:
