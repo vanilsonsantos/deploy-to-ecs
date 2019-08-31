@@ -2,14 +2,14 @@ version: '2'
 
 services:
   back-end:
-    image: 679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_back_end:latest
+    image: 697826815912.dkr.ecr.us-east-1.amazonaws.com/ecr_bunnystudio_study_node:latest
     ports:
       - "5000:5000" 
     volumes:
       - ./back-end:/data
     command: npm start /data 
   front-end:
-    image: 679035925558.dkr.ecr.us-west-2.amazonaws.com/ecr_bunnystudio_study_front_end:latest
+    image: 697826815912.dkr.ecr.us-east-1.amazonaws.com/ecr_bunnystudio_study_node:latest
     ports:
       - "5050:5050" 
     volumes:
