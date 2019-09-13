@@ -1,0 +1,36 @@
+node {
+    
+    stage('List projects') {
+        def projectsList = Jenkins.instance.items
+            .findAll { job -> job.name =~ /project/ }
+            .collect { job -> return job.name.split('-project')[0] }
+            
+        def inputs = []
+        projectsList.each { project -> 
+            def repositoryName = "bunnystudio-${project}";
+            try {
+                sh returnStdout: true, script: "aws ecr list-images --repository-name ${repositoryName} > ${repositoryName}.json"
+                if(fileExists("${repositoryName}.json")) {
+                    def images = readJSON file: "${repositoryName}.json"
+                    if(images['imageIds']) {
+                        def imageTags = images['imageIds']
+                            .findAll { image -> image['imageTag'] }
+                            .collect { image -> image['imageTag'] }
+                        if(imageTags) {
+                            imageTags.add(0, "Select a version")
+                            inputs << choice(choices: imageTags, description: '', name: project)
+                        }
+                    }
+                }
+                    
+            } catch(e) {
+                echo "Repository ${repositoryName} not found"
+            }
+        }
+        timeout(time: 5, unit: "MINUTES") {
+            response = input message: 'Do you want to build these projects?', ok: 'Yes', parameters: inputs
+        }
+        println response
+    }
+
+}
