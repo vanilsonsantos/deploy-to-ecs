@@ -1,0 +1,52 @@
+node {  
+    
+    def pipelineFlowWorkspace = "${JENKINS_HOME}/workspace/bunnystudio-pipeline-flow"
+    
+    ansiColor('xterm') {
+        
+        docker.withRegistry('http://697826815912.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:jenkins-aws-access') {
+
+            try {
+                
+                dir("$pipelineFlowWorkspace") {
+                    def principalBunnystudioPipelineFlowWorkspace = "${WORKSPACE}".replaceAll(/\@.*/, "")
+                    def dockerComposeFilePath = "config/ci/bunnystudio/docker-compose.yml";
+                    def dockerComposeOverrideFilePath = "config/ci/bunnystudio/docker-compose.override.yml";
+                    def dockerComposeTestFilePath = "config/ci/bunnystudio/docker-compose.pipeline.tests.yml";
+                
+                    stage('Unit tests') {
+                        sh "docker-compose -f $dockerComposeFilePath -f $dockerComposeOverrideFilePath -f $dockerComposeTestFilePath run --no-deps gilmourr"
+                        stash name: 'gilmour-test-report', includes: "gilmourr/reports/tests/report.xml"
+                    }
+                    
+                    stage('Pre build') {
+                        stash name: 'gilmour-image-source', includes: "gilmourr/**/*,core/**/*", excludes: '**/.git,**/.git/**'
+                    }
+                }
+                
+                stage ('Build image') {
+                    unstash 'gilmour-image-source'
+                    sh "docker build -f gilmourr/ci/Dockerfile -t 697826815912.dkr.ecr.us-east-1.amazonaws.com/bunnystudio-gilmourr:build-latest ."
+                }
+                
+                stage ('Push image') {
+                    docker
+                        .image("697826815912.dkr.ecr.us-east-1.amazonaws.com/bunnystudio-gilmourr:build-latest")
+                        .push("build-latest")
+                }
+            } catch(e) {
+                throw e
+            } finally {
+                unstash 'gilmour-test-report'
+                def testReportFilePath = "gilmourr/reports/tests/report.xml"
+                if (fileExists(testReportFilePath)) {
+                    junit testReportFilePath
+                    sh "rm ${testReportFilePath}"
+                }
+            }
+        }
+    }
+    
+    echo "Finished"
+   
+}
