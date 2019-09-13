@@ -1,0 +1,83 @@
+node {  
+        
+    stage('Checkout') {
+        git(
+           url: 'git@github.com:torreco/voicebunny2.git',
+           credentialsId: 'jenkins-github-access',
+           branch: "master"
+        )
+    }
+    
+    stage('Clean up') {
+        sh "docker container prune -f"
+    }
+    
+    stage('Prepare environment') {
+        sh "docker-compose -f ${WORKSPACE}/config/ci/bunnystudio/docker-compose.yml -f ${WORKSPACE}/config/ci/bunnystudio/docker-compose.override.yml run --rm updateDB"
+    }
+
+    stage('Triggering projects') {
+        def directoriesInWorkspace = sh returnStdout: true, script: "ls -l ${WORKSPACE} | grep ^d | awk '{print \$9}'"
+        def projectsCanBeTriggered = directoriesInWorkspace.tokenize('\n')
+            .findAll { directory ->
+                def stepsPipelineFilePath = "${pwd()}/${directory}/pipeline.steps.yml"
+                fileExists(stepsPipelineFilePath) 
+            }
+        
+        def projectsHaveChanged = []
+        def jobs = [:]
+        def projectsMustBeTriggered = []
+        def publisher = LastChanges.getLastChangesPublisher "PREVIOUS_REVISION", "SIDE", "LINE", true, true, "", "", "", "", ""
+            publisher.publishLastChanges()
+            def changes = publisher.getLastChanges()
+            for (commit in changes.getCommits()) {
+                projectsMustBeTriggered = commit.getChanges().split(' ')
+                    .findAll { line -> 
+                        file = line.startsWith('a/') 
+                        file
+                    }
+                    .collect { file -> 
+                        projectFolder = file.split('/')[1] 
+                        projectFolder
+                    }
+                    .unique(false)
+                    .findAll { projectFolder -> 
+                        projectsCanBeTriggered.contains(projectFolder)
+                    }
+            }
+        
+        println "Projects have changed : ${projectsMustBeTriggered}"
+        
+        // Check if the job was triggered manually
+        if (currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')['userId']) {
+            def inputs = []
+            projectsCanBeTriggered.each { project ->
+                inputs << booleanParam(defaultValue: projectsMustBeTriggered.contains(project), description: '', name: project)
+            }
+            timeout(time: 5, unit: "MINUTES") {
+                response = input message: 'Do you want to build these projects?', ok: 'Yes', parameters: inputs
+            }
+            projectsMustBeTriggered = response
+                .findAll { response -> response.toString().contains("true") }
+                .collect { it.toString().split('=')[0] }
+        }
+        
+        println projectsMustBeTriggered
+        
+        if (!projectsMustBeTriggered.isEmpty()) {
+            projectsMustBeTriggered.each {
+                project -> 
+                    jobs["${project}-project"] = {
+                        build job: "${project}-project", 
+                        parameters: [],
+                        quietPeriod: 2
+                    }
+            }   
+            parallel jobs
+        }
+    }
+        
+    echo "Finished"
+}
+    
+    
