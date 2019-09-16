@@ -1,6 +1,13 @@
 node {  
     
-    def pipelineFlowWorkspace = "${JENKINS_HOME}/workspace/bunnystudio-pipeline-flow"
+    env.PROJECT_NAME = "gilmourr"
+    env.PIPELINE_FLOW_WORKSPACE = "${JENKINS_HOME}/workspace/bunnystudio-pipeline-flow"
+    env.ECR_REPO = "697826815912.dkr.ecr.us-east-1.amazonaws.com/bunnystudio-${PROJECT_NAME}"
+    env.ECR_PROJECT_NAME = "bunnystudio-${PROJECT_NAME}"
+    env.COMPOSE_FILE = "config/ci/bunnystudio/docker-compose.yml"
+    env.COMPOSE_OVERRIDE_FILE = "config/ci/bunnystudio/docker-compose.override.yml"
+    env.COMPOSE_TEST_FILE = "config/ci/bunnystudio/docker-compose.pipeline.tests.yml"
+    env.REPORT_TEST_FILE = "${PROJECT_NAME}/reports/tests/report.xml"
     
     ansiColor('xterm') {
         
@@ -8,40 +15,60 @@ node {
 
             try {
                 
-                dir("$pipelineFlowWorkspace") {
-                    def principalBunnystudioPipelineFlowWorkspace = "${WORKSPACE}".replaceAll(/\@.*/, "")
-                    def dockerComposeFilePath = "config/ci/bunnystudio/docker-compose.yml";
-                    def dockerComposeOverrideFilePath = "config/ci/bunnystudio/docker-compose.override.yml";
-                    def dockerComposeTestFilePath = "config/ci/bunnystudio/docker-compose.pipeline.tests.yml";
-                
+                dir("$PIPELINE_FLOW_WORKSPACE") {
+
                     stage('Unit tests') {
-                        sh "docker-compose -f $dockerComposeFilePath -f $dockerComposeOverrideFilePath -f $dockerComposeTestFilePath run --no-deps gilmourr"
-                        stash name: 'gilmour-test-report', includes: "gilmourr/reports/tests/report.xml"
+                        sh "docker-compose -f $COMPOSE_FILE -f $COMPOSE_OVERRIDE_FILE -f $COMPOSE_TEST_FILE run --no-deps ${PROJECT_NAME}"
                     }
                     
                     stage('Pre build') {
-                        stash name: 'gilmour-image-source', includes: "gilmourr/**/*,core/**/*", excludes: '**/.git,**/.git/**'
+                        sh returnStdout: true, script: 'git --no-pager log -n 1 --pretty=%h > ${PROJECT_NAME}/ci/lastcommit.txt'
+                        stash name: "${PROJECT_NAME}-image-source", includes: "${PROJECT_NAME}/**/*,core/**/*", excludes: '**/.git,**/.git/**'
                     }
                 }
                 
                 stage ('Build image') {
-                    unstash 'gilmour-image-source'
-                    sh "docker build -f gilmourr/ci/Dockerfile -t 697826815912.dkr.ecr.us-east-1.amazonaws.com/bunnystudio-gilmourr:build-latest ."
+                    unstash "${PROJECT_NAME}-image-source"
+                    env.GIT_COMMIT = sh(returnStdout: true, script: 'cat ${PROJECT_NAME}/ci/lastcommit.txt').trim()
+                    env.IMAGE_TAG = "${GIT_COMMIT}-build"
+                    sh "docker build -f ${PROJECT_NAME}/ci/Dockerfile -t ${ECR_REPO}:${IMAGE_TAG} ."
                 }
                 
                 stage ('Push image') {
-                    docker
-                        .image("697826815912.dkr.ecr.us-east-1.amazonaws.com/bunnystudio-gilmourr:build-latest")
-                        .push("build-latest")
+                    
+                    try {
+                        sh returnStdout: true, script: "aws ecr list-images --repository-name ${ECR_PROJECT_NAME} > ${ECR_PROJECT_NAME}.json"
+                        if(fileExists("${ECR_PROJECT_NAME}.json")) {
+                            def images = readJSON file: "${ECR_PROJECT_NAME}.json"
+                            if(images['imageIds']) {
+                                def buildTag = images['imageIds']
+                                    .findAll { image -> image['imageTag'] && image['imageTag'].contains('build')}
+                                    .collect { image -> image['imageTag'] }
+                                if (buildTag.isEmpty()) {
+                                    docker
+                                        .image("${ECR_REPO}:${IMAGE_TAG}")
+                                        .push("${IMAGE_TAG}")
+                                } else if(!buildTag.isEmpty() && buildTag.first() != "${IMAGE_TAG}") {
+                                    docker
+                                        .image("${ECR_REPO}:${IMAGE_TAG}")
+                                        .push("${IMAGE_TAG}")
+                                    def oldTag = buildTag.first()
+                                    sh "aws ecr batch-delete-image --repository-name ${ECR_PROJECT_NAME} --image-ids imageTag=${oldTag}"
+                                }
+                            }
+                        }
+                    } catch(e) {
+                        echo "Error when trying to delete old image"
+                    }
                 }
             } catch(e) {
                 throw e
             } finally {
-                unstash 'gilmour-test-report'
-                def testReportFilePath = "gilmourr/reports/tests/report.xml"
-                if (fileExists(testReportFilePath)) {
-                    junit testReportFilePath
-                    sh "rm ${testReportFilePath}"
+                dir("$PIPELINE_FLOW_WORKSPACE") {
+                    if (fileExists("$REPORT_TEST_FILE")) {
+                        junit "$REPORT_TEST_FILE"
+                        sh "rm $REPORT_TEST_FILE"
+                    }
                 }
             }
         }
