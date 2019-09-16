@@ -1,23 +1,33 @@
 node {
     
+    stage('Checkout config') {
+        git(
+           url: 'git@github.com:torreco/bunnystudio-pipeline-config.git',
+           credentialsId: 'jenkins-github-access',
+           branch: "master"
+        )
+    }
+    
     stage('List projects') {
         def projectsList = Jenkins.instance.items
             .findAll { job -> job.name =~ /project/ }
             .collect { job -> return job.name.split('-project')[0] }
             
         def inputs = []
+        def selectOption = "----- Select a version -----"
         projectsList.each { project -> 
             def repositoryName = "bunnystudio-${project}";
+            def imageTags = [selectOption]
             try {
                 sh returnStdout: true, script: "aws ecr list-images --repository-name ${repositoryName} > ${repositoryName}.json"
                 if(fileExists("${repositoryName}.json")) {
                     def images = readJSON file: "${repositoryName}.json"
                     if(images['imageIds']) {
-                        def imageTags = images['imageIds']
+                        def filteredTags = images['imageIds']
                             .findAll { image -> image['imageTag'] }
                             .collect { image -> image['imageTag'] }
-                        if(imageTags) {
-                            imageTags.add(0, "Select a version")
+                        if(!filteredTags.isEmpty()) {
+                            imageTags.addAll(filteredTags)
                             inputs << choice(choices: imageTags, description: '', name: project)
                         }
                     }
@@ -28,9 +38,42 @@ node {
             }
         }
         timeout(time: 5, unit: "MINUTES") {
-            response = input message: 'Do you want to build these projects?', ok: 'Yes', parameters: inputs
+            response = input message: 'Do you want to deploy these projects?', ok: 'Yes', parameters: inputs
         }
-        println response
+        stage('Deploy') {
+            response
+                .findAll { response -> !response.toString().contains(selectOption) }
+                .each { option -> 
+                    def project = option.toString().split("=")[0]
+                    def taskDefinitionFile = "${project}/task-definition.json"
+    
+                    if (fileExists(taskDefinitionFile)) {
+                        def selectedTag = option.toString().split("=")[1]
+                        def newTaskDefinitionFile = "${project}/task-definition-${selectedTag}.json"
+                        sh  "sed -e 's;%IMAGE_TAG%;${selectedTag};g; s;%ENV%;dev;g ' ${taskDefinitionFile} > ${newTaskDefinitionFile}"
+                        def newTaskJson = readJSON file: "${newTaskDefinitionFile}"
+                        try {
+                            def logGroupName = newTaskJson['containerDefinitions'][0]['logConfiguration']['options']['awslogs-group']
+                            def logRegion = newTaskJson['containerDefinitions'][0]['logConfiguration']['options']['awslogs-region']
+                            sh "aws logs create-log-group --log-group-name ${logGroupName} --region ${logRegion}"
+                        } catch(e) {
+                            echo "log group already exists"
+                        }
+                        def updatedTaskDifinitionFile = "updated-${project}-task-definition.json"
+                        sh "aws ecs register-task-definition --family ${newTaskJson['family']} --cli-input-json file://${newTaskDefinitionFile} > ${updatedTaskDifinitionFile}"
+                        def updatedTaskJson = readJSON file: "${updatedTaskDifinitionFile}"
+                        def family = updatedTaskJson['taskDefinition']['family']
+                        def revision = updatedTaskJson['taskDefinition']['revision']
+                        try {
+                            sh "aws ecs update-service --region us-east-1 --cluster BunnyDev --service ecs-${project}-dev-service --task-definition ${family}:${revision}"
+                        } catch(e) {
+                            sh "aws ecs create-service --cluster BunnyDev --service-name ecs-${project}-dev-service --task-definition ${family}:${revision} --network-configuration 'awsvpcConfiguration={subnets=[subnet-039832073ef147052,subnet-090f7089351da3e17,subnet-090f7089351da3e17],securityGroups=[sg-001f1abad0f5ac5e1]}' --launch-type EC2 --desired-count 1"
+                        }
+                        sh "aws ecs wait services-stable --region us-east-1 --cluster BunnyDev --services ecs-${project}-dev-service"
+                    }
+                }
+        }
+        
     }
 
 }
